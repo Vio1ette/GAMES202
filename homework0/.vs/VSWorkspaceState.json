@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\lib",
+    "\\src",
+    "\\src\\renderers",
+    "\\src\\shaders",
+    "\\src\\shaders\\phongShader"
+  ],
+  "SelectedNode": "\\src\\shaders\\phongShader\\fragment.glsl",
+  "PreviewInSolutionExplorer": false
+}
