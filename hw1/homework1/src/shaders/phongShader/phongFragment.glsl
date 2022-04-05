@@ -15,7 +15,7 @@ varying highp vec3 vFragPos;
 varying highp vec3 vNormal;
 
 // Shadow map related variables
-#define NUM_SAMPLES 20
+#define NUM_SAMPLES 60
 #define BLOCKER_SEARCH_NUM_SAMPLES NUM_SAMPLES
 #define PCF_NUM_SAMPLES NUM_SAMPLES
 #define NUM_RINGS 10
@@ -99,7 +99,7 @@ float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
   //首先，确定一个范围，取这个范围内得blocker的平均depth
 
   //@@
-  float dBlockerRange = 1.0 / 400.0 * 50.0;
+  float dBlockerRange = 1.0 / 400.0 * 40.0 ;
 
   float dBlocker = 0.0;
   int count = 0;
@@ -108,14 +108,14 @@ float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
       vec4 map_value = texture2D(shadowMap, uv + poissonDisk[i] * dBlockerRange);
       float map_depth =unpack(map_value);
 
-      if(map_depth + 0.01> zReceiver)continue;
+      if(map_depth + 0.001> zReceiver)continue;
 
       dBlocker+=map_depth;
       count+=1;
   }
 
   //@@
-  if(count == BLOCKER_SEARCH_NUM_SAMPLES)return 2.0;
+  // if(count == BLOCKER_SEARCH_NUM_SAMPLES)return 2.0;
 
 	return dBlocker/float(count);
 }
@@ -134,7 +134,7 @@ float PCF(sampler2D shadowMap, vec4 coords, float filterSize) {
     vec4 map_value = texture2D(shadowMap,coords.xy + poissonDisk[i] * filterSize);
     float map_depth = unpack(map_value);  
     // 1e-2是bias
-    if(abs(map_depth-camera_depth)<1e-2||map_depth>camera_depth)ret+=1;
+    if(abs(map_depth-camera_depth)<EPS||map_depth>camera_depth)ret+=1;
     // 这个 0.01 是 bias
     // if(map_depth > camera_depth - 0.01) ret+=1;
   }
@@ -150,12 +150,12 @@ float PCSS(sampler2D shadowMap, vec4 coords){
 
   // STEP 2: penumbra size
 
-  //@@
-  if(avgBlocker_depth<EPS)return 1.0;
-  if(avgBlocker_depth>2.0)return 0.0;
+  //@@ 这个 0.1 如果小了的话， 会多出很多黑点
+   if(avgBlocker_depth<0.0001)return 1.0;
+  // if(avgBlocker_depth>2.0)return 0.0;/
 
   //感觉就是调参了，为了让效果更好
-  float w_light = 1.0/50.0;
+  float w_light = 1.0/30.0;
 
   float w_penumbra = (coords.z - avgBlocker_depth) * w_light / avgBlocker_depth;
 
